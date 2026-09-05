@@ -11,8 +11,10 @@ A single-file portfolio site. No framework, no build step, no dependencies.
 | File | What it is |
 |---|---|
 | `index.html` | **The whole site.** HTML, CSS, JS and the portrait all in one file. This is the file you edit and the file GitHub Pages serves. |
-| `portrait.jpg` | The cropped photo, kept for reference. The site doesn't load it — the image is embedded inside `index.html`. |
+| `og-card.png` | The 1200×630 preview image LinkedIn, WhatsApp and Slack show when the link is pasted. Referenced by `og:image`. |
+| `portrait.jpg` | The cropped photo. The site doesn't load it — the image is embedded inside `index.html` — but `og-card.png` is built from it. |
 | `tools/embed_photo.py` | Swaps in a different portrait. |
+| `tools/make_og_card.py` | Rebuilds `og-card.png`. Downloads the fonts on first run. |
 | `tools/make_artifact.py` | Regenerates the Claude preview version. Not needed for deploying. |
 | `.nojekyll` | Tells GitHub Pages to serve the files as-is instead of running Jekyll. |
 
@@ -91,6 +93,22 @@ run it again with explicit pixel coordinates from the original image:
 ```bash
 python tools/embed_photo.py "C:/path/to/new-photo.jpg" --box 175 505 675 1172
 ```
+
+### Update the link-preview card
+The text on `og-card.png` lives at the top of `tools/make_og_card.py` (`EYEBROW`,
+`NAME`, `LEAD`, `CHIPS`, `URL`). Edit those, then:
+```bash
+python tools/make_og_card.py
+```
+Commit the new `og-card.png` and push. **Social sites cache previews hard** — after
+pushing, paste your URL into these to force a refresh:
+
+- LinkedIn — https://www.linkedin.com/post-inspector/
+- Facebook / WhatsApp — https://developers.facebook.com/tools/debug/
+- Twitter/X — https://cards-dev.twitter.com/validator
+
+If you change the site's headline, change the card's `LEAD` to match — a preview
+that contradicts the page looks worse than no preview.
 
 ---
 
