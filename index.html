@@ -710,6 +710,15 @@ ul{margin:0;padding:0;list-style:none}
 .toon-t.small{font-size:11.5px;opacity:0;animation-delay:.85s;fill:var(--muted)}
 .toon-t.tiny{font-size:8.5px;animation-delay:.7s}
 
+/* Character bits used across the scenes. */
+.toon .kid .dot{fill:var(--toon-ink);stroke:none}
+.toon .wave-arm{transform-origin:0 40px;animation:toon-wavearm .9s ease-in-out 1s infinite}
+@keyframes toon-wavearm{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}
+.toon .point-arm{transform-origin:0 40px;animation:toon-point 2.6s ease-in-out 1s infinite}
+@keyframes toon-point{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
+.toon .sweat{opacity:0;animation:toon-sweat 1.8s ease-out 1s infinite}
+@keyframes toon-sweat{0%{opacity:0}30%{opacity:.9}100%{opacity:0}}
+
 /* Draw-on. pathLength="1" normalises every path, so one rule fits all. */
 .toon .d{stroke-dasharray:1;stroke-dashoffset:1;animation:toon-draw .7s ease var(--d,0s) forwards}
 @keyframes toon-draw{to{stroke-dashoffset:0}}
@@ -765,6 +774,59 @@ ul{margin:0;padding:0;list-style:none}
   .toon .bob,.toon .float,.toon .flame,.toon .lift,.toon .rise,
   .toon .juggle,.toon .scan,.toon .wave,.toon .boat,.toon .sig path{animation:none}
   .toon .flame,.toon .scan,.toon .sig path{opacity:.9}
+}
+
+/* ============================================================
+   TOOLBOX
+   Closed until tapped. The lid swings on its back edge, the latch
+   drops away and six tools rise out — one per category — before the
+   lists underneath fade in.
+   ============================================================ */
+.tbx{display:flex;justify-content:center;margin-bottom:6px}
+.tbx-lid-btn{
+  appearance:none;border:0;background:none;padding:0;cursor:pointer;
+  width:min(560px,100%);border-radius:16px;
+}
+.tbx-lid-btn:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+.tbx-art{overflow:visible}
+
+/* Hinge along the lid's back edge, the way a real one opens. */
+.tbx-lid{transform-origin:144px 172px;transition:transform .72s cubic-bezier(.34,1.36,.64,1)}
+.tbx.is-open .tbx-lid{transform:rotate(-112deg)}
+.tbx-lid .latch{transition:opacity .2s ease .05s}
+.tbx.is-open .tbx-lid .latch{opacity:0}
+
+/* Tools sit hidden inside the box and rise once the lid is clear. */
+.tbx-tools .tool{opacity:0;transform:translateY(46px);transition:transform .5s cubic-bezier(.34,1.36,.64,1),opacity .3s ease}
+.tbx.is-open .tool{opacity:1;transform:translateY(0)}
+.tbx.is-open .t1{transition-delay:.30s}
+.tbx.is-open .t2{transition-delay:.37s}
+.tbx.is-open .t3{transition-delay:.44s}
+.tbx.is-open .t4{transition-delay:.51s}
+.tbx.is-open .t5{transition-delay:.58s}
+.tbx.is-open .t6{transition-delay:.65s}
+
+.tbx-kid{transition:transform .5s cubic-bezier(.34,1.36,.64,1) .2s}
+.tbx.is-open .tbx-kid{transform:translate(72px,170px) rotate(-5deg)}
+
+.tbx-hint{animation-delay:1s}
+.tbx.is-open .tbx-hint{opacity:0;transition:opacity .3s ease}
+
+/* The lists stay in the DOM for search and for no-JS; they are simply not
+   shown until the box is open. */
+.kit.is-shut{display:none}
+.kit-col{opacity:0;transform:translateY(14px);animation:tbx-in .5s cubic-bezier(.32,.72,0,1) forwards}
+.kit-col:nth-child(1){animation-delay:.10s}
+.kit-col:nth-child(2){animation-delay:.17s}
+.kit-col:nth-child(3){animation-delay:.24s}
+.kit-col:nth-child(4){animation-delay:.31s}
+.kit-col:nth-child(5){animation-delay:.38s}
+.kit-col:nth-child(6){animation-delay:.45s}
+@keyframes tbx-in{to{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  .tbx-lid,.tbx-tools .tool,.tbx-kid{transition:none}
+  .kit-col{animation:none;opacity:1;transform:none}
 }
 
 /* ============================================================
@@ -1394,137 +1456,173 @@ ul{margin:0;padding:0;list-style:none}
     <!-- ============================================================
          STORY SCENES
          One hand-drawn panel per chapter, cloned into the story overlay.
-         Every stroke carries pathLength="1" so the draw-on animation works
-         without measuring anything in JavaScript.
+         The character is the same in every scene — oversized round head,
+         three hair strands, dot eyes — so the story reads as one person
+         rather than six unrelated drawings.
+         Every stroke carries pathLength="1" so the draw-on animation needs
+         no measuring in JavaScript.
          ============================================================ -->
     <div class="scene-source" hidden aria-hidden="true">
 
       <template data-scene>
-        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="A figure at a desk in front of an empty screen, cobwebs in the corner">
-          <path class="ink d" pathLength="1" style="--d:0s"    d="M28 244 H452"/>
-          <path class="ink d" pathLength="1" style="--d:.1s"   d="M188 236 V206 M292 236 V206"/>
-          <path class="ink d f-paper" pathLength="1" style="--d:.18s" d="M160 96 H320 V206 H160 Z"/>
-          <path class="ink d" pathLength="1" style="--d:.5s"   d="M182 128 H240 M182 150 H274 M182 172 H214"/>
-          <text class="toon-t" x="240" y="82">0 commits</text>
-          <g class="bob">
-            <circle class="ink d f-paper" pathLength="1" style="--d:.34s" cx="96" cy="150" r="19"/>
-            <path class="ink d" pathLength="1" style="--d:.42s" d="M96 169 V218 M96 182 L128 172 M96 182 L70 196 M96 218 L78 244 M96 218 L118 244"/>
-            <path class="ink d" pathLength="1" style="--d:.62s" d="M88 146 h6 M102 146 h6 M88 158 q8 5 16 0"/>
+        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="A boy at a desk staring at an empty screen, cobwebs in the corner">
+          <path class="ink d" pathLength="1" style="--d:0s" d="M22 254 H458"/>
+          <path class="ink d" pathLength="1" style="--d:.08s" d="M196 246 V214 M300 246 V214"/>
+          <path class="ink d f-paper" pathLength="1" style="--d:.16s" d="M168 104 H328 V214 H168 Z"/>
+          <path class="ink thin d" pathLength="1" style="--d:.46s" d="M190 140 H250 M190 162 H284 M190 184 H222"/>
+          <text class="toon-t" x="248" y="88">0 commits</text>
+          <g class="kid bob" transform="translate(84,142)">
+            <path class="ink d" pathLength="1" style="--d:.4s" d="M0 26 V72 M0 40 L30 30 M0 40 L-26 50 M0 72 L-18 100 M0 72 L20 100"/>
+            <circle class="ink d f-paper" pathLength="1" style="--d:.3s" cx="0" cy="0" r="25"/>
+            <path class="ink d" pathLength="1" style="--d:.52s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+            <circle class="dot" cx="-9" cy="-3" r="3.1"/><circle class="dot" cx="9" cy="-3" r="3.1"/>
+            <path class="ink thin d" pathLength="1" style="--d:.62s" d="M-7 11 q7 4 14 -1"/>
           </g>
-          <path class="ink thin d" pathLength="1" style="--d:.72s" d="M396 60 L444 60 L444 108 Z M396 60 L444 108 M420 60 L444 84 M396 60 L420 84"/>
+          <path class="ink thin d" pathLength="1" style="--d:.7s" d="M404 62 L452 62 L452 110 Z M404 62 L452 110 M428 62 L452 86 M404 62 L428 86"/>
           <g class="float">
-            <circle class="ink dot" cx="352" cy="140" r="2.5"/>
-            <circle class="ink dot" cx="372" cy="176" r="2"/>
-            <circle class="ink dot" cx="340" cy="196" r="2.5"/>
+            <circle class="dot" cx="356" cy="150" r="2.6"/><circle class="dot" cx="378" cy="186" r="2.1"/><circle class="dot" cx="344" cy="206" r="2.6"/>
           </g>
-          <text class="toon-t small" x="240" y="284">nineteen months of nothing</text>
+          <text class="toon-t small" x="240" y="288">nineteen months of nothing</text>
         </svg>
       </template>
 
       <template data-scene>
-        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="Two small rockets leaving the ground within two days">
-          <path class="ink d" pathLength="1" style="--d:0s" d="M28 252 H452"/>
+        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="The boy waving as two small rockets lift off">
+          <path class="ink d" pathLength="1" style="--d:0s" d="M22 258 H458"/>
           <g class="lift">
-            <path class="ink d f-paper" pathLength="1" style="--d:.16s" d="M150 200 q0-42 22-64 q22 22 22 64 Z"/>
-            <path class="ink d" pathLength="1" style="--d:.34s" d="M150 200 l-16 22 h20 M194 200 l16 22 h-20"/>
-            <circle class="ink d" pathLength="1" style="--d:.42s" cx="172" cy="158" r="7"/>
-            <path class="ink flame" pathLength="1" d="M160 204 q12 26 24 0 q-12 14-24 0"/>
+            <path class="ink d f-paper" pathLength="1" style="--d:.16s" d="M162 206 q0-44 23-66 q23 22 23 66 Z"/>
+            <path class="ink d" pathLength="1" style="--d:.32s" d="M162 206 l-17 23 h21 M208 206 l17 23 h-21"/>
+            <circle class="ink d" pathLength="1" style="--d:.4s" cx="185" cy="162" r="7"/>
+            <path class="ink flame" pathLength="1" d="M172 210 q13 27 26 0 q-13 15-26 0"/>
           </g>
           <g class="lift late">
-            <path class="ink d f-paper" pathLength="1" style="--d:.5s" d="M286 214 q0-38 20-58 q20 20 20 58 Z"/>
-            <path class="ink d" pathLength="1" style="--d:.62s" d="M286 214 l-14 20 h18 M326 214 l14 20 h-18"/>
-            <circle class="ink d" pathLength="1" style="--d:.7s" cx="306" cy="176" r="6"/>
-            <path class="ink flame slow" pathLength="1" d="M296 218 q10 24 20 0 q-10 12-20 0"/>
+            <path class="ink d f-paper" pathLength="1" style="--d:.48s" d="M300 220 q0-40 21-60 q21 20 21 60 Z"/>
+            <path class="ink d" pathLength="1" style="--d:.6s" d="M300 220 l-15 21 h19 M342 220 l15 21 h-19"/>
+            <circle class="ink d" pathLength="1" style="--d:.68s" cx="321" cy="180" r="6"/>
+            <path class="ink flame slow" pathLength="1" d="M310 224 q11 25 21 0 q-11 13-21 0"/>
           </g>
-          <g class="bob">
-            <circle class="ink d f-paper" pathLength="1" style="--d:.8s" cx="66" cy="176" r="16"/>
-            <path class="ink d" pathLength="1" style="--d:.88s" d="M66 192 V232 M66 202 L94 186 M66 202 L44 216 M66 232 L50 252 M66 232 L84 252"/>
-            <path class="ink d" pathLength="1" style="--d:1s"   d="M59 173 h5 M71 173 h5 M58 183 q8 6 16 0"/>
+          <g class="kid" transform="translate(66,168)">
+            <path class="ink d wave-arm" pathLength="1" style="--d:.86s" d="M0 40 L30 8"/>
+            <path class="ink d" pathLength="1" style="--d:.8s" d="M0 26 V72 M0 40 L-26 52 M0 72 L-18 100 M0 72 L20 100"/>
+            <circle class="ink d f-paper" pathLength="1" style="--d:.72s" cx="0" cy="0" r="25"/>
+            <path class="ink d" pathLength="1" style="--d:.9s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+            <circle class="dot" cx="-9" cy="-3" r="3.1"/><circle class="dot" cx="9" cy="-3" r="3.1"/>
+            <path class="ink thin d" pathLength="1" style="--d:1s" d="M-8 9 q8 8 16 0"/>
           </g>
-          <text class="toon-t" x="240" y="52">48 hours</text>
-          <text class="toon-t small" x="240" y="284">two, back to back</text>
+          <text class="toon-t" x="248" y="54">48 hours</text>
+          <text class="toon-t small" x="240" y="288">two, back to back</text>
         </svg>
       </template>
 
       <template data-scene>
-        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="A figure juggling several projects at once">
-          <path class="ink d" pathLength="1" style="--d:0s" d="M28 256 H452"/>
-          <g class="bob">
-            <circle class="ink d f-paper" pathLength="1" style="--d:.14s" cx="240" cy="180" r="20"/>
-            <path class="ink d" pathLength="1" style="--d:.24s" d="M240 200 V240 M240 210 L282 186 M240 210 L198 186 M240 240 L222 256 M240 240 L258 256"/>
-            <path class="ink d" pathLength="1" style="--d:.44s" d="M232 176 h6 M246 176 h6 M231 189 q9 7 18 0"/>
-            <path class="ink d" pathLength="1" style="--d:.5s" d="M262 158 q4-8 8-2 M212 158 q-4-8-8-2"/>
+        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="The boy juggling three projects at once, sweating">
+          <path class="ink d" pathLength="1" style="--d:0s" d="M22 262 H458"/>
+          <g class="kid" transform="translate(240,178)">
+            <path class="ink d" pathLength="1" style="--d:.24s" d="M0 26 V74 M0 38 L34 14 M0 38 L-34 14 M0 74 L-18 102 M0 74 L20 102"/>
+            <circle class="ink d f-paper" pathLength="1" style="--d:.14s" cx="0" cy="0" r="25"/>
+            <path class="ink d" pathLength="1" style="--d:.4s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+            <circle class="dot" cx="-9" cy="-4" r="3.1"/><circle class="dot" cx="9" cy="-4" r="3.1"/>
+            <path class="ink thin d" pathLength="1" style="--d:.5s" d="M-8 10 q8 9 16 0"/>
+            <path class="ink thin sweat" pathLength="1" d="M26 -14 q5-9 9-2 M-26 -14 q-5-9-9-2"/>
           </g>
-          <g class="juggle a"><circle class="ink d f-paper" pathLength="1" style="--d:.56s" cx="176" cy="120" r="15"/><text class="toon-t tiny" x="176" y="125">RAG</text></g>
-          <g class="juggle b"><circle class="ink d f-paper" pathLength="1" style="--d:.64s" cx="240" cy="86"  r="15"/><text class="toon-t tiny" x="240" y="91">API</text></g>
-          <g class="juggle c"><circle class="ink d f-paper" pathLength="1" style="--d:.72s" cx="304" cy="120" r="15"/><text class="toon-t tiny" x="304" y="125">APP</text></g>
-          <path class="ink thin d" pathLength="1" style="--d:.8s" d="M150 104 q90-58 180 0"/>
-          <path class="ink thin" d="M300 148 q10-10 4-18 M186 148 q-10-10-4-18"/>
-          <text class="toon-t small" x="240" y="286">two internships, one month</text>
+          <g class="juggle a"><circle class="ink d f-paper" pathLength="1" style="--d:.56s" cx="168" cy="112" r="17"/><text class="toon-t tiny" x="168" y="117">RAG</text></g>
+          <g class="juggle b"><circle class="ink d f-paper" pathLength="1" style="--d:.64s" cx="240" cy="74"  r="17"/><text class="toon-t tiny" x="240" y="79">API</text></g>
+          <g class="juggle c"><circle class="ink d f-paper" pathLength="1" style="--d:.72s" cx="312" cy="112" r="17"/><text class="toon-t tiny" x="312" y="117">APP</text></g>
+          <path class="ink thin d" pathLength="1" style="--d:.8s" d="M144 96 q96-62 192 0"/>
+          <text class="toon-t small" x="240" y="290">two internships, one month</text>
         </svg>
       </template>
 
       <template data-scene>
-        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="Three products launching, each with a live URL">
-          <path class="ink d" pathLength="1" style="--d:0s" d="M28 258 H452"/>
+        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="The boy pointing up at three rockets, each carrying a live URL">
+          <path class="ink d" pathLength="1" style="--d:0s" d="M22 262 H458"/>
           <g class="rise r1">
-            <path class="ink d f-paper" pathLength="1" style="--d:.14s" d="M92 210 q0-40 20-60 q20 20 20 60 Z"/>
-            <path class="ink flame" pathLength="1" d="M102 214 q10 24 20 0 q-10 12-20 0"/>
-            <path class="ink thin d" pathLength="1" style="--d:.5s" d="M132 152 h44 v20 h-44"/>
+            <path class="ink d f-paper" pathLength="1" style="--d:.14s" d="M148 208 q0-40 20-60 q20 20 20 60 Z"/>
+            <path class="ink flame" pathLength="1" d="M158 212 q10 24 20 0 q-10 12-20 0"/>
+            <path class="ink thin d" pathLength="1" style="--d:.5s" d="M188 150 h46 v20 h-46"/>
           </g>
           <g class="rise r2">
-            <path class="ink d f-paper" pathLength="1" style="--d:.24s" d="M220 194 q0-40 20-60 q20 20 20 60 Z"/>
-            <path class="ink flame slow" pathLength="1" d="M230 198 q10 24 20 0 q-10 12-20 0"/>
-            <path class="ink thin d" pathLength="1" style="--d:.58s" d="M260 136 h44 v20 h-44"/>
+            <path class="ink d f-paper" pathLength="1" style="--d:.24s" d="M268 192 q0-40 20-60 q20 20 20 60 Z"/>
+            <path class="ink flame slow" pathLength="1" d="M278 196 q10 24 20 0 q-10 12-20 0"/>
+            <path class="ink thin d" pathLength="1" style="--d:.58s" d="M308 134 h46 v20 h-46"/>
           </g>
           <g class="rise r3">
-            <path class="ink d f-paper" pathLength="1" style="--d:.34s" d="M348 218 q0-40 20-60 q20 20 20 60 Z"/>
-            <path class="ink flame" pathLength="1" d="M358 222 q10 24 20 0 q-10 12-20 0"/>
-            <path class="ink thin d" pathLength="1" style="--d:.66s" d="M388 160 h44 v20 h-44"/>
+            <path class="ink d f-paper" pathLength="1" style="--d:.34s" d="M382 216 q0-40 20-60 q20 20 20 60 Z"/>
+            <path class="ink flame" pathLength="1" d="M392 220 q10 24 20 0 q-10 12-20 0"/>
+            <path class="ink thin d" pathLength="1" style="--d:.66s" d="M422 158 h42 v20 h-42"/>
           </g>
-          <text class="toon-t" x="240" y="52">3 days &#183; 3 URLs</text>
-          <text class="toon-t small" x="240" y="288">it stopped being practice</text>
+          <g class="kid" transform="translate(66,176)">
+            <path class="ink d point-arm" pathLength="1" style="--d:.78s" d="M0 40 L32 4"/>
+            <path class="ink d" pathLength="1" style="--d:.72s" d="M0 26 V72 M0 40 L-26 52 M0 72 L-18 100 M0 72 L20 100"/>
+            <circle class="ink d f-paper" pathLength="1" style="--d:.66s" cx="0" cy="0" r="25"/>
+            <path class="ink d" pathLength="1" style="--d:.86s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+            <circle class="dot" cx="-9" cy="-3" r="3.1"/><circle class="dot" cx="9" cy="-3" r="3.1"/>
+            <path class="ink thin d" pathLength="1" style="--d:.96s" d="M-8 9 q8 8 16 0"/>
+          </g>
+          <text class="toon-t" x="252" y="54">3 days &#183; 3 URLs</text>
+          <text class="toon-t small" x="240" y="290">it stopped being practice</text>
         </svg>
       </template>
 
       <template data-scene>
         <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="A phone showing a QR code while a queue of students scans in">
-          <path class="ink d" pathLength="1" style="--d:0s" d="M28 258 H452"/>
-          <path class="ink d f-paper" pathLength="1" style="--d:.14s" d="M186 66 h108 a10 10 0 0 1 10 10 v168 a10 10 0 0 1 -10 10 h-108 a10 10 0 0 1 -10 -10 v-168 a10 10 0 0 1 10 -10 Z"/>
-          <path class="ink thin d" pathLength="1" style="--d:.3s" d="M224 78 h32"/>
+          <path class="ink d" pathLength="1" style="--d:0s" d="M22 262 H458"/>
+          <path class="ink d f-paper" pathLength="1" style="--d:.14s" d="M198 62 h96 a11 11 0 0 1 11 11 v150 a11 11 0 0 1 -11 11 h-96 a11 11 0 0 1 -11 -11 v-150 a11 11 0 0 1 11 -11 Z"/>
+          <path class="ink thin d" pathLength="1" style="--d:.3s" d="M232 74 h28"/>
           <g class="qr">
-            <path class="ink d" pathLength="1" style="--d:.4s"  d="M200 108 h22 v22 h-22 Z M258 108 h22 v22 h-22 Z M200 166 h22 v22 h-22 Z"/>
-            <path class="ink d" pathLength="1" style="--d:.52s" d="M234 108 v10 M234 130 h12 M258 142 h22 M246 154 v14 M268 166 v22 M234 188 h24"/>
+            <path class="ink d" pathLength="1" style="--d:.4s"  d="M206 100 h22 v22 h-22 Z M264 100 h22 v22 h-22 Z M206 156 h22 v22 h-22 Z"/>
+            <path class="ink d" pathLength="1" style="--d:.52s" d="M240 100 v10 M240 122 h12 M264 134 h22 M252 146 v14 M274 156 v22 M240 178 h24"/>
           </g>
-          <path class="ink thin d scan" pathLength="1" d="M192 148 H288"/>
-          <g class="crowd">
-            <g><circle class="ink d f-paper" pathLength="1" style="--d:.6s" cx="82" cy="176" r="13"/><path class="ink d" pathLength="1" style="--d:.66s" d="M82 189 V226 M82 198 L104 190 M82 198 L62 208 M82 226 L70 246 M82 226 L94 246"/></g>
-            <g><circle class="ink d f-paper" pathLength="1" style="--d:.72s" cx="128" cy="184" r="11"/><path class="ink d" pathLength="1" style="--d:.78s" d="M128 195 V228 M128 203 L146 196 M128 228 L118 248 M128 228 L138 248"/></g>
-            <g><circle class="ink d f-paper" pathLength="1" style="--d:.84s" cx="392" cy="180" r="12"/><path class="ink d" pathLength="1" style="--d:.9s" d="M392 192 V228 M392 200 L372 192 M392 228 L380 248 M392 228 L404 248"/></g>
+          <path class="ink thin scan" pathLength="1" d="M200 140 H292"/>
+          <g class="kid small" transform="translate(92,170) scale(.72)">
+            <path class="ink d" pathLength="1" style="--d:.6s" d="M0 26 V72 M0 40 L28 30 M0 40 L-26 50 M0 72 L-18 100 M0 72 L20 100"/>
+            <circle class="ink d f-paper" pathLength="1" style="--d:.56s" cx="0" cy="0" r="25"/>
+            <path class="ink d" pathLength="1" style="--d:.66s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+            <circle class="dot" cx="-9" cy="-3" r="3.1"/><circle class="dot" cx="9" cy="-3" r="3.1"/>
+            <path class="ink thin d" pathLength="1" style="--d:.74s" d="M-8 9 q8 8 16 0"/>
           </g>
-          <g class="tick"><path class="ink thick" pathLength="1" d="M330 96 l14 16 l28 -34"/></g>
-          <text class="toon-t small" x="240" y="288">a pass that expires in thirty seconds</text>
+          <g class="kid small" transform="translate(140,186) scale(.58)">
+            <path class="ink d" pathLength="1" style="--d:.78s" d="M0 26 V72 M0 40 L26 32 M0 72 L-18 100 M0 72 L20 100"/>
+            <circle class="ink d f-paper" pathLength="1" style="--d:.74s" cx="0" cy="0" r="25"/>
+            <path class="ink d" pathLength="1" style="--d:.84s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+            <circle class="dot" cx="-9" cy="-3" r="3.1"/><circle class="dot" cx="9" cy="-3" r="3.1"/>
+          </g>
+          <g class="kid small" transform="translate(392,180) scale(.66)">
+            <path class="ink d" pathLength="1" style="--d:.9s" d="M0 26 V72 M0 40 L-28 30 M0 72 L-18 100 M0 72 L20 100"/>
+            <circle class="ink d f-paper" pathLength="1" style="--d:.86s" cx="0" cy="0" r="25"/>
+            <path class="ink d" pathLength="1" style="--d:.96s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+            <circle class="dot" cx="-9" cy="-3" r="3.1"/><circle class="dot" cx="9" cy="-3" r="3.1"/>
+          </g>
+          <g class="tick"><path class="ink thick" pathLength="1" d="M336 92 l15 17 l30 -36"/></g>
+          <text class="toon-t small" x="240" y="290">a pass that expires in thirty seconds</text>
         </svg>
       </template>
 
       <template data-scene>
-        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="A fishing boat at sea sending a signal to a mast on shore">
-          <path class="ink thin d wave w1" pathLength="1" style="--d:.1s" d="M12 214 q28-14 56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0"/>
-          <path class="ink thin d wave w2" pathLength="1" style="--d:.2s" d="M12 242 q28-14 56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0"/>
-          <path class="ink thin d wave w3" pathLength="1" style="--d:.3s" d="M12 270 q28-14 56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0"/>
+        <svg class="toon" viewBox="0 0 480 300" role="img" aria-label="The boy in a fishing boat sending a signal to a mast on shore">
+          <path class="ink thin d wave w1" pathLength="1" style="--d:.1s" d="M6 216 q28-14 56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0"/>
+          <path class="ink thin d wave w2" pathLength="1" style="--d:.2s" d="M6 244 q28-14 56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0"/>
+          <path class="ink thin d wave w3" pathLength="1" style="--d:.3s" d="M6 272 q28-14 56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0 t56 0"/>
           <g class="boat">
-            <path class="ink d f-paper" pathLength="1" style="--d:.4s" d="M132 196 h116 l-18 30 h-80 Z"/>
-            <path class="ink d" pathLength="1" style="--d:.56s" d="M190 196 V138 M190 146 l40 20 l-40 16"/>
-            <rect class="ink d f-paper" pathLength="1" style="--d:.66s" x="170" y="176" width="20" height="16" rx="3"/>
+            <g class="kid small" transform="translate(150,150) scale(.6)">
+              <path class="ink d" pathLength="1" style="--d:.62s" d="M0 26 V64 M0 38 L28 30 M0 38 L-26 46"/>
+              <circle class="ink d f-paper" pathLength="1" style="--d:.56s" cx="0" cy="0" r="25"/>
+              <path class="ink d" pathLength="1" style="--d:.7s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+              <circle class="dot" cx="-9" cy="-3" r="3.1"/><circle class="dot" cx="9" cy="-3" r="3.1"/>
+              <path class="ink thin d" pathLength="1" style="--d:.78s" d="M-8 9 q8 6 16 0"/>
+            </g>
+            <path class="ink d f-paper" pathLength="1" style="--d:.4s" d="M118 196 h124 l-19 32 h-86 Z"/>
+            <path class="ink d" pathLength="1" style="--d:.5s" d="M212 196 V132 M212 140 l42 21 l-42 17"/>
+            <rect class="ink d f-paper" pathLength="1" style="--d:.66s" x="186" y="176" width="20" height="16" rx="3"/>
           </g>
-          <path class="ink d" pathLength="1" style="--d:.72s" d="M400 208 V112 M386 208 l14-16 l14 16"/>
+          <path class="ink d" pathLength="1" style="--d:.74s" d="M414 210 V108 M400 210 l14-16 l14 16"/>
           <g class="sig">
-            <path class="ink thin s1" pathLength="1" d="M262 150 q22-16 44 0"/>
-            <path class="ink thin s2" pathLength="1" d="M272 128 q34-24 68 0"/>
-            <path class="ink thin s3" pathLength="1" d="M282 106 q46-32 92 0"/>
+            <path class="ink thin s1" pathLength="1" d="M272 148 q22-16 44 0"/>
+            <path class="ink thin s2" pathLength="1" d="M282 124 q36-26 72 0"/>
+            <path class="ink thin s3" pathLength="1" d="M292 100 q48-34 96 0"/>
           </g>
-          <text class="toon-t" x="240" y="52">no signal &#183; still sends</text>
-          <text class="toon-t small" x="240" y="290">the one being built now</text>
+          <text class="toon-t" x="248" y="52">no signal &#183; still sends</text>
+          <text class="toon-t small" x="240" y="292">the one being built now</text>
         </svg>
       </template>
 
@@ -1599,6 +1697,47 @@ ul{margin:0;padding:0;list-style:none}
   <div class="sec-head">
     <h2>The toolbox</h2>
     <p>What I reach for &mdash; drawn from the repositories, the two internships, and daily use.</p>
+  </div>
+
+  <div class="tbx" id="tbx">
+    <button class="tbx-lid-btn" id="tbxBtn" type="button" aria-expanded="false" aria-controls="tbxKit">
+      <svg class="toon tbx-art" viewBox="0 0 480 300" role="img" aria-label="A closed toolbox with the boy standing beside it">
+
+        <path class="ink d" pathLength="1" style="--d:0s" d="M22 262 H458"/>
+
+        <!-- Tools, drawn behind the box so they rise out of it when it opens. -->
+        <g class="tbx-tools">
+          <g class="tool t1"><path class="ink" pathLength="1" d="M172 168 v-52 M164 116 a10 10 0 1 1 16 0 l-8 6 Z"/></g>
+          <g class="tool t2"><path class="ink" pathLength="1" d="M206 168 v-46 M199 122 h14 v-14 h-14 Z"/></g>
+          <g class="tool t3"><path class="ink" pathLength="1" d="M240 168 v-56 M226 112 h28 v12 h-28 Z"/></g>
+          <g class="tool t4"><path class="ink" pathLength="1" d="M274 168 v-48 M267 120 q7-18 14 0 Z"/></g>
+          <g class="tool t5"><path class="ink" pathLength="1" d="M308 168 v-44 M300 124 h16 v-16 h-16 Z M304 112 h8"/></g>
+          <g class="tool t6"><path class="ink" pathLength="1" d="M342 168 v-50 M334 118 a8 8 0 1 1 16 0 a8 8 0 1 1 -16 0"/></g>
+        </g>
+
+        <!-- Box body -->
+        <path class="ink d f-paper" pathLength="1" style="--d:.2s" d="M148 172 h216 l-14 76 h-188 Z"/>
+        <path class="ink thin d" pathLength="1" style="--d:.5s" d="M160 206 h192 M240 172 v76"/>
+
+        <!-- Lid: hinged along its back edge, so it swings open like a real one -->
+        <g class="tbx-lid">
+          <path class="ink d f-paper" pathLength="1" style="--d:.3s" d="M144 172 h224 v-30 h-224 Z"/>
+          <path class="ink d" pathLength="1" style="--d:.4s" d="M222 142 v-16 a34 12 0 0 1 68 0 v16" transform="translate(-40,0)"/>
+          <path class="ink thin d latch" pathLength="1" style="--d:.55s" d="M246 172 h20 v14 h-20 Z"/>
+        </g>
+
+        <!-- The same boy from the story, waiting by the box -->
+        <g class="kid tbx-kid" transform="translate(72,170)">
+          <path class="ink d" pathLength="1" style="--d:.62s" d="M0 26 V72 M0 40 L30 34 M0 40 L-26 50 M0 72 L-18 100 M0 72 L20 100"/>
+          <circle class="ink d f-paper" pathLength="1" style="--d:.56s" cx="0" cy="0" r="25"/>
+          <path class="ink d" pathLength="1" style="--d:.7s" d="M-12 -22 q-5 -11 2 -14 M1 -25 q1 -12 8 -13 M13 -21 q6 -10 13 -9"/>
+          <circle class="dot" cx="-9" cy="-3" r="3.1"/><circle class="dot" cx="9" cy="-3" r="3.1"/>
+          <path class="ink thin d" pathLength="1" style="--d:.8s" d="M-8 9 q8 8 16 0"/>
+        </g>
+
+        <text class="toon-t tbx-hint" x="256" y="290">tap to open</text>
+      </svg>
+    </button>
   </div>
 
   <div class="kit">
@@ -1900,6 +2039,40 @@ ul{margin:0;padding:0;list-style:none}
   } else {
     counters.forEach(runCounter);
   }
+
+  /* ---------------- toolbox ---------------- */
+  /* The lists start hidden and the box starts shut. Both only happen once
+     JavaScript is here to open it again — with no script the toolbox art is
+     skipped and the categories are simply visible, which is the behaviour a
+     search engine and a reader without JS should get. */
+  (function(){
+    var tbx = D.getElementById('tbx');
+    var btn = D.getElementById('tbxBtn');
+    var kit = D.querySelector('#toolbox .kit');
+    if(!tbx || !btn || !kit) return;
+
+    kit.id = kit.id || 'tbxKit';
+    kit.classList.add('is-shut');
+
+    var open = false;
+    function toggle(){
+      open = !open;
+      tbx.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      if(open){
+        kit.classList.remove('is-shut');
+        // Let the lid clear the box before the lists start arriving.
+        var cols = kit.querySelectorAll('.kit-col');
+        Array.prototype.forEach.call(cols, function(c){
+          c.style.animation = 'none'; void c.offsetWidth; c.style.animation = '';
+        });
+      } else {
+        kit.classList.add('is-shut');
+      }
+    }
+
+    btn.addEventListener('click', toggle);
+  })();
 
   /* ---------------- story mode ---------------- */
   /* Plays the timeline back one chapter at a time. Chapters are read out of
