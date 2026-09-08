@@ -517,6 +517,44 @@ ul{margin:0;padding:0;list-style:none}
 .leg-what .chips{margin-top:9px}
 
 /* ============================================================
+   AIM
+   Arrow into the target as the experience section arrives. Fires once —
+   an animation that replays every time you scroll past becomes wallpaper.
+   ============================================================ */
+.aim{display:block;width:min(300px,72%);height:auto;margin:14px 0 2px;overflow:visible}
+.aim .ink{fill:none;stroke:var(--toon-ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.aim .thin{stroke-width:1.8}
+.aim .ring{opacity:0;transform-origin:286px 48px}
+.aim .bull{fill:var(--toon-ink);opacity:0;transform-origin:286px 48px}
+.aim .arrow{opacity:0;transform:translateX(-150px)}
+.aim .impact{opacity:0;transform-origin:286px 48px}
+
+/* Rings settle first, then the arrow arrives and lands. */
+.aim.is-hit .r3{animation:aim-ring .4s ease .05s forwards}
+.aim.is-hit .r2{animation:aim-ring .4s ease .14s forwards}
+.aim.is-hit .r1{animation:aim-ring .4s ease .23s forwards}
+.aim.is-hit .bull{animation:aim-ring .4s ease .32s forwards}
+.aim.is-hit .arrow{animation:aim-fly .52s cubic-bezier(.5,0,.35,1) .5s forwards}
+.aim.is-hit .impact{animation:aim-hit .5s ease-out .98s forwards}
+
+@keyframes aim-ring{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes aim-fly{
+  0%{opacity:0;transform:translateX(-150px)}
+  12%{opacity:1}
+  88%{transform:translateX(6px)}
+  100%{opacity:1;transform:translateX(0)}
+}
+@keyframes aim-hit{
+  0%{opacity:.9;transform:scale(.55)}
+  100%{opacity:0;transform:scale(1.25)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .aim .ring,.aim .bull,.aim .arrow{opacity:1;transform:none;animation:none}
+  .aim .impact{opacity:0}
+}
+
+/* ============================================================
    SHEET
    One overlay every "tell me more" opens into. Detail never expands
    underneath a card — the page keeps its shape and the reader chooses
@@ -1337,22 +1375,15 @@ ul{margin:0;padding:0;list-style:none}
           <span class="pill live">Live</span>
         </div>
         <h3>Campus Hub</h3>
-        <p class="cap-sum">Events, QR ticketing and volunteer duty rosters for a college. Students
-           get a signed pass; coordinators project a rotating code and watch volunteers appear on a
-           live roster as they scan in.</p>
+        <p class="cap-sum">Events, QR ticketing and volunteer duty rosters for a college.</p>
         <div class="cap-meta">
           <div><b>30s</b><span>before a screenshot expires</span></div>
           <div><b>~10k</b><span>lines, one deployment</span></div>
-          <div><b>0.14s</b><span>page load</span></div>
         </div>
-        <ul class="chips">
-          <li class="chip">Next.js 16</li><li class="chip">PostgreSQL</li>
-          <li class="chip">Drizzle</li><li class="chip">TypeScript</li>
-        </ul>
         <div class="cap-actions">
           <button class="btn btn-solid btn-sm" type="button"
                   data-sheet-open="campus" data-sheet-title="Campus Hub">
-            How it works
+            More about this project
           </button>
           <a class="btn btn-line btn-sm" href="https://campus-hub-eight-rouge.vercel.app" target="_blank" rel="noopener">Open the app <span aria-hidden="true">&#8599;</span></a>
         </div>
@@ -1363,9 +1394,6 @@ ul{margin:0;padding:0;list-style:none}
       <div class="cap">
         <span class="eyebrow">Everything else</span>
         <h3>Eight more projects</h3>
-        <p class="cap-sum">An AI kitchen, a student housing search, a medication reminder, an
-           attendance game, a mobile assistant, an NFC habit tracker, three machine-learning
-           studies and the Flask app that started it.</p>
         <div class="cap-meta">
           <div><b>4 live</b><span>behind a URL right now</span></div>
           <div><b>8 repos</b><span>all public</span></div>
@@ -1534,11 +1562,53 @@ ul{margin:0;padding:0;list-style:none}
   <div class="sec-head">
     <h2>Experience &amp; education</h2>
     <p>Two internships in 2026 &mdash; a retail-AI product team at Infopark, and a remote machine-learning task series.</p>
+    <svg class="aim" id="aim" viewBox="0 0 340 96" role="img" aria-label="An arrow hitting the centre of a target">
+      <circle class="ink ring r3" cx="286" cy="48" r="32"/>
+      <circle class="ink ring r2" cx="286" cy="48" r="21"/>
+      <circle class="ink ring r1" cx="286" cy="48" r="10"/>
+      <circle class="bull" cx="286" cy="48" r="4"/>
+      <g class="arrow">
+        <path class="ink" d="M34 48 H262"/>
+        <path class="ink" d="M252 39 l11 9 l-11 9"/>
+        <path class="ink thin" d="M34 48 l-16-10 M34 48 l-16 10 M48 48 l-16-10 M48 48 l-16 10"/>
+      </g>
+      <g class="impact">
+        <path class="ink thin" d="M286 20 v-11 M286 76 v11 M258 48 h-11 M314 48 h11 M266 28 l-8-8 M306 28 l8-8 M266 68 l-8 8 M306 68 l8 8"/>
+      </g>
+    </svg>
   </div>
 
   <div class="bento">
 
-    <article class="tile tinted s7" style="--c:236 90 82">
+    <article class="tile tinted s12" style="--c:236 90 82">
+      <div class="cap">
+        <div class="row">
+          <span class="eyebrow">Internship &middot; On-site</span>
+          <span class="pill when">June 2026</span>
+        </div>
+        <h3>AI &amp; ML Intern &mdash; Litmus7</h3>
+        <div class="role-meta"><span>Infopark, Ernakulam, Kerala</span></div>
+        <p class="cap-sum">Built the front end of a retail promotions analyzer and helped structure
+           the agent behind it &mdash; a LangGraph ReAct tool-caller with a Qdrant RAG pipeline for
+           context.</p>
+        <ul class="chips">
+          <li class="chip">React</li><li class="chip">TypeScript</li><li class="chip">FastAPI</li>
+          <li class="chip">LangGraph</li><li class="chip">Qdrant (RAG)</li><li class="chip">PostgreSQL</li>
+        </ul>
+        <div class="cap-actions">
+          <button class="btn btn-solid btn-sm" type="button"
+                  data-sheet-open="experience" data-sheet-title="Experience &amp; education">
+            The rest &mdash; second internship and education
+          </button>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <template data-sheet="experience">
+    <div class="bento">
+    <article class="tile tinted s12" style="--c:236 90 82">
       <div class="mini-proj">
         <div class="row">
           <span class="eyebrow">Internship &middot; On-site</span>
@@ -1554,14 +1624,8 @@ ul{margin:0;padding:0;list-style:none}
            against PostgreSQL for application data &mdash; plus backend environment setup on Windows.
            The product shipped as a multi-screen flow: promotion analysis, an AI chat interface, and
            data-refresh animations.</p>
-        <ul class="chips">
-          <li class="chip">React</li><li class="chip">TypeScript</li><li class="chip">Vite</li><li class="chip">Tailwind</li>
-          <li class="chip">FastAPI</li><li class="chip">LangGraph</li><li class="chip">Gemini API</li>
-          <li class="chip">Qdrant (RAG)</li><li class="chip">PostgreSQL</li><li class="chip">Git</li>
-        </ul>
       </div>
     </article>
-
     <article class="tile tinted s5" style="--c:66 99 235">
       <div class="mini-proj">
         <div class="row">
@@ -1595,8 +1659,8 @@ ul{margin:0;padding:0;list-style:none}
         <div class="edu-year"><b>2027</b><span>expected<br>graduation</span></div>
       </div>
     </article>
-
-  </div>
+    </div>
+  </template>
 </section>
 
 <!-- ==================== JOURNEY ==================== -->
@@ -2280,6 +2344,22 @@ ul{margin:0;padding:0;list-style:none}
       Sheet.open(btn.getAttribute('data-sheet-title') || '', tpl.content.cloneNode(true));
     });
   });
+
+  /* ---------------- aim ---------------- */
+  /* Fires once, when the experience section first comes into view. Replaying
+     it on every pass would turn it into wallpaper. */
+  (function(){
+    var aim = D.getElementById('aim');
+    if(!aim) return;
+    if(!('IntersectionObserver' in W)){ aim.classList.add('is-hit'); return; }
+
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ aim.classList.add('is-hit'); io.unobserve(en.target); }
+      });
+    }, {threshold:0.45});
+    io.observe(aim);
+  })();
 
   /* ---------------- toolbox ---------------- */
   /* Tapping plays the box opening, then the contents arrive in the shared
