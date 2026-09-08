@@ -518,44 +518,65 @@ ul{margin:0;padding:0;list-style:none}
 
 /* ============================================================
    AIM
-   Scroll-driven: --p runs 0 to 1 as the target rises through the
-   viewport, and the arrow's position is read straight off it. Scrubbing
-   back up pulls the arrow back out, because the scroll position *is*
-   the animation rather than merely its trigger.
+   Scroll-driven, and in depth. --p runs 0 to 1 as the target rises
+   through the viewport; the arrow starts big and close to you and shrinks
+   away into the bullseye, which is what reads as flying into the screen
+   rather than sliding in from the side. Scrubbing back up pulls it out
+   again, because the scroll position is the animation. Tapping throws it.
    ============================================================ */
-.aim{display:block;width:min(300px,72%);height:auto;margin:14px 0 2px;overflow:visible;--p:0}
-.aim .ink{fill:none;stroke:var(--toon-ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.aim-btn{display:block;appearance:none;border:0;background:none;padding:0;cursor:pointer;width:100%;text-align:left}
+.aim-btn:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:10px}
+/* The top margin is headroom: at full size the arrow reaches ~30px above
+   the box, and the SVG deliberately does not clip it. */
+.aim{display:block;width:min(300px,72%);height:auto;margin:38px 0 2px;overflow:visible;--p:0}
+.aim .ink{fill:none;stroke:var(--toon-ink);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .aim .thin{stroke-width:1.8}
 
-/* Rings are in place early, so there is something to aim at. */
 .aim .ring,.aim .bull{
   opacity:clamp(0,calc(var(--p) * 3.4),1);
-  transform:scale(calc(.78 + var(--p) * .22));
-  transform-origin:286px 48px;
+  transform:scale(calc(.8 + var(--p) * .2));
+  transform-origin:170px 48px;
 }
 .aim .r2{opacity:clamp(0,calc(var(--p) * 3.4 - .35),1)}
 .aim .r1{opacity:clamp(0,calc(var(--p) * 3.4 - .7),1)}
 .aim .bull{fill:var(--toon-ink);opacity:clamp(0,calc(var(--p) * 3.4 - 1.05),1)}
 
-/* The arrow's whole travel is the scroll. */
+/* Scaled about the bullseye: 2.6x is right in front of your face, 1x is
+   buried in the target. The small drift back to centre is parallax — pure
+   zoom on its own reads as a growing shape, not as something moving past
+   you. Stroke weight comes free, since scaling the group scales its ink. */
 .aim .arrow{
-  opacity:clamp(0,calc(var(--p) * 6),1);
-  /* The arrowhead sits at x=263 and the bullseye at x=286, so the travel ends
-     23px past its resting place — the tip buries in the centre rather than
-     stopping short of it. */
-  transform:translateX(calc(var(--p) * 255px - 232px));
+  transform-origin:170px 48px;
+  transform:translate(calc((1 - var(--p)) * 16px),calc((1 - var(--p)) * -9px))
+            scale(calc(2.6 - var(--p) * 1.6));
+  opacity:clamp(0,calc(var(--p) * 5),1);
 }
+.aim .vane{fill:var(--toon-ink);stroke:none}
+.aim .nock{fill:var(--toon-ink)}
 
-.aim .impact{opacity:0;transform-origin:286px 48px}
+.aim .impact{opacity:0;transform-origin:170px 48px}
 .aim.is-hit .impact{animation:aim-hit .45s ease-out forwards}
 @keyframes aim-hit{
-  0%{opacity:.95;transform:scale(.5)}
-  100%{opacity:0;transform:scale(1.3)}
+  0%{opacity:.95;transform:scale(.45)}
+  100%{opacity:0;transform:scale(1.35)}
+}
+
+/* Tap to throw it again. The animation outranks the scroll-derived transform
+   for its duration and then hands control straight back to --p. */
+.aim.is-replay .arrow{animation:aim-throw .58s cubic-bezier(.4,0,.25,1)}
+@keyframes aim-throw{
+  /* Same extreme the scroll reaches, so the arrow can never overshoot the
+     headroom the top margin reserves for it. */
+  0%{opacity:0;transform:translate(16px,-9px) scale(2.6)}
+  15%{opacity:1}
+  100%{opacity:1;transform:translate(0,0) scale(1)}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .aim{--p:1}
-  .aim .ring,.aim .bull,.aim .arrow{opacity:1;transform:none}
+  .aim{--p:1;margin-top:14px}
+  .aim .ring,.aim .bull{opacity:1;transform:none}
+  .aim .arrow{opacity:1;transform:scale(1)}
+  .aim.is-replay .arrow{animation:none}
   .aim .impact{display:none}
 }
 
@@ -1567,20 +1588,30 @@ ul{margin:0;padding:0;list-style:none}
   <div class="sec-head">
     <h2>Experience &amp; education</h2>
     <p>Two internships in 2026 &mdash; a retail-AI product team at Infopark, and a remote machine-learning task series.</p>
-    <svg class="aim" id="aim" viewBox="0 0 340 96" role="img" aria-label="An arrow hitting the centre of a target">
-      <circle class="ink ring r3" cx="286" cy="48" r="32"/>
-      <circle class="ink ring r2" cx="286" cy="48" r="21"/>
-      <circle class="ink ring r1" cx="286" cy="48" r="10"/>
-      <circle class="bull" cx="286" cy="48" r="4"/>
+    <button class="aim-btn" id="aimBtn" type="button" aria-label="Shoot the arrow again" title="Tap to shoot again">
+    <svg class="aim" id="aim" viewBox="0 0 340 96" role="img" aria-label="An arrow flying away from the viewer into the centre of a target">
+      <circle class="ink ring r3" cx="170" cy="48" r="34"/>
+      <circle class="ink ring r2" cx="170" cy="48" r="22"/>
+      <circle class="ink ring r1" cx="170" cy="48" r="11"/>
+      <circle class="bull" cx="170" cy="48" r="4"/>
+
+      <!-- Seen from behind, flying away from you into the target: the shaft is
+           foreshortened to almost nothing and the three vanes nearest you
+           splay out. Scaling this whole group about the bullseye is what
+           reads as travel in depth rather than travel across the page. -->
       <g class="arrow">
-        <path class="ink" d="M34 48 H262"/>
-        <path class="ink" d="M252 39 l11 9 l-11 9"/>
-        <path class="ink thin" d="M34 48 l-16-10 M34 48 l-16 10 M48 48 l-16-10 M48 48 l-16 10"/>
+        <path class="ink shaft" d="M170 48 L170 30"/>
+        <path class="vane" d="M170 30 L156 18 L170 26 Z"/>
+        <path class="vane" d="M170 30 L184 18 L170 26 Z"/>
+        <path class="vane" d="M167 29 L170 18 L173 29 Z"/>
+        <circle class="nock" cx="170" cy="30" r="2.6"/>
       </g>
+
       <g class="impact">
-        <path class="ink thin" d="M286 20 v-11 M286 76 v11 M258 48 h-11 M314 48 h11 M266 28 l-8-8 M306 28 l8-8 M266 68 l-8 8 M306 68 l8 8"/>
+        <path class="ink thin" d="M170 20 v-12 M170 76 v12 M142 48 h-12 M198 48 h12 M150 28 l-9-9 M190 28 l9-9 M150 68 l-9 9 M190 68 l9 9"/>
       </g>
     </svg>
+    </button>
   </div>
 
   <div class="bento">
@@ -2198,6 +2229,25 @@ ul{margin:0;padding:0;list-style:none}
     if(p > 0.985 && !aimHit){ aimHit = true; aimEl.classList.add('is-hit'); }
     else if(p < 0.85 && aimHit){ aimHit = false; aimEl.classList.remove('is-hit'); }
   }
+
+  /* Tapping throws it again from wherever the reader is. */
+  (function(){
+    var btn = D.getElementById('aimBtn');
+    if(!btn || !aimEl) return;
+    var busy = false;
+    btn.addEventListener('click', function(){
+      if(busy || reduce) return;
+      busy = true;
+      aimEl.classList.remove('is-hit', 'is-replay');
+      void aimEl.offsetWidth;
+      aimEl.classList.add('is-replay');
+      setTimeout(function(){ aimEl.classList.add('is-hit'); }, 560);
+      setTimeout(function(){
+        aimEl.classList.remove('is-replay');
+        busy = false;
+      }, 700);
+    });
+  })();
 
   /* ---------------- scroll loop ---------------- */
   var navLinks = Array.prototype.slice.call(D.querySelectorAll('#nav a'));
