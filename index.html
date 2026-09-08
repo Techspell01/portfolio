@@ -518,40 +518,45 @@ ul{margin:0;padding:0;list-style:none}
 
 /* ============================================================
    AIM
-   Arrow into the target as the experience section arrives. Fires once —
-   an animation that replays every time you scroll past becomes wallpaper.
+   Scroll-driven: --p runs 0 to 1 as the target rises through the
+   viewport, and the arrow's position is read straight off it. Scrubbing
+   back up pulls the arrow back out, because the scroll position *is*
+   the animation rather than merely its trigger.
    ============================================================ */
-.aim{display:block;width:min(300px,72%);height:auto;margin:14px 0 2px;overflow:visible}
+.aim{display:block;width:min(300px,72%);height:auto;margin:14px 0 2px;overflow:visible;--p:0}
 .aim .ink{fill:none;stroke:var(--toon-ink);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .aim .thin{stroke-width:1.8}
-.aim .ring{opacity:0;transform-origin:286px 48px}
-.aim .bull{fill:var(--toon-ink);opacity:0;transform-origin:286px 48px}
-.aim .arrow{opacity:0;transform:translateX(-150px)}
-.aim .impact{opacity:0;transform-origin:286px 48px}
 
-/* Rings settle first, then the arrow arrives and lands. */
-.aim.is-hit .r3{animation:aim-ring .4s ease .05s forwards}
-.aim.is-hit .r2{animation:aim-ring .4s ease .14s forwards}
-.aim.is-hit .r1{animation:aim-ring .4s ease .23s forwards}
-.aim.is-hit .bull{animation:aim-ring .4s ease .32s forwards}
-.aim.is-hit .arrow{animation:aim-fly .52s cubic-bezier(.5,0,.35,1) .5s forwards}
-.aim.is-hit .impact{animation:aim-hit .5s ease-out .98s forwards}
-
-@keyframes aim-ring{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
-@keyframes aim-fly{
-  0%{opacity:0;transform:translateX(-150px)}
-  12%{opacity:1}
-  88%{transform:translateX(6px)}
-  100%{opacity:1;transform:translateX(0)}
+/* Rings are in place early, so there is something to aim at. */
+.aim .ring,.aim .bull{
+  opacity:clamp(0,calc(var(--p) * 3.4),1);
+  transform:scale(calc(.78 + var(--p) * .22));
+  transform-origin:286px 48px;
 }
+.aim .r2{opacity:clamp(0,calc(var(--p) * 3.4 - .35),1)}
+.aim .r1{opacity:clamp(0,calc(var(--p) * 3.4 - .7),1)}
+.aim .bull{fill:var(--toon-ink);opacity:clamp(0,calc(var(--p) * 3.4 - 1.05),1)}
+
+/* The arrow's whole travel is the scroll. */
+.aim .arrow{
+  opacity:clamp(0,calc(var(--p) * 6),1);
+  /* The arrowhead sits at x=263 and the bullseye at x=286, so the travel ends
+     23px past its resting place — the tip buries in the centre rather than
+     stopping short of it. */
+  transform:translateX(calc(var(--p) * 255px - 232px));
+}
+
+.aim .impact{opacity:0;transform-origin:286px 48px}
+.aim.is-hit .impact{animation:aim-hit .45s ease-out forwards}
 @keyframes aim-hit{
-  0%{opacity:.9;transform:scale(.55)}
-  100%{opacity:0;transform:scale(1.25)}
+  0%{opacity:.95;transform:scale(.5)}
+  100%{opacity:0;transform:scale(1.3)}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .aim .ring,.aim .bull,.aim .arrow{opacity:1;transform:none;animation:none}
-  .aim .impact{opacity:0}
+  .aim{--p:1}
+  .aim .ring,.aim .bull,.aim .arrow{opacity:1;transform:none}
+  .aim .impact{display:none}
 }
 
 /* ============================================================
@@ -2170,6 +2175,30 @@ ul{margin:0;padding:0;list-style:none}
     tick();
   }
 
+  /* ---------------- aim ---------------- */
+  /* The arrow is positioned from scroll rather than played on entry: --p is
+     0 while the target is still low in the viewport and reaches 1 as it
+     settles into reading position, so the arrow lands exactly when you arrive.
+     Driven from the existing scroll tick rather than its own listener. */
+  var aimEl = D.getElementById('aim');
+  var aimHit = false;
+  function updateAim(){
+    if(!aimEl || reduce) return;
+    var r = aimEl.getBoundingClientRect();
+    if(r.bottom < -40 || r.top > W.innerHeight + 40) return;
+
+    var centre = r.top + r.height / 2;
+    var from = W.innerHeight * 0.95;   // arrow fully drawn back
+    var to   = W.innerHeight * 0.52;   // arrow buried in the bullseye
+    var p = (from - centre) / (from - to);
+    p = Math.min(1, Math.max(0, p));
+    aimEl.style.setProperty('--p', p.toFixed(4));
+
+    // Flash on the landing, and re-arm if they scroll back up past it.
+    if(p > 0.985 && !aimHit){ aimHit = true; aimEl.classList.add('is-hit'); }
+    else if(p < 0.85 && aimHit){ aimHit = false; aimEl.classList.remove('is-hit'); }
+  }
+
   /* ---------------- scroll loop ---------------- */
   var navLinks = Array.prototype.slice.call(D.querySelectorAll('#nav a'));
   var topbar = D.getElementById('topbar');
@@ -2189,6 +2218,7 @@ ul{margin:0;padding:0;list-style:none}
     roads.forEach(function(r){ if(visible(r.host)) r.road.update(p, active); });
     navLinks.forEach(function(a){ a.classList.toggle('on', a.getAttribute('href') === '#' + active); });
     topbar.classList.toggle('stuck', y > 8);
+    updateAim();
   }
 
   function onScroll(){
@@ -2344,22 +2374,6 @@ ul{margin:0;padding:0;list-style:none}
       Sheet.open(btn.getAttribute('data-sheet-title') || '', tpl.content.cloneNode(true));
     });
   });
-
-  /* ---------------- aim ---------------- */
-  /* Fires once, when the experience section first comes into view. Replaying
-     it on every pass would turn it into wallpaper. */
-  (function(){
-    var aim = D.getElementById('aim');
-    if(!aim) return;
-    if(!('IntersectionObserver' in W)){ aim.classList.add('is-hit'); return; }
-
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        if(en.isIntersecting){ aim.classList.add('is-hit'); io.unobserve(en.target); }
-      });
-    }, {threshold:0.45});
-    io.observe(aim);
-  })();
 
   /* ---------------- toolbox ---------------- */
   /* Tapping plays the box opening, then the contents arrive in the shared
