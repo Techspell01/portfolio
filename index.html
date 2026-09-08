@@ -517,6 +517,74 @@ ul{margin:0;padding:0;list-style:none}
 .leg-what .chips{margin-top:9px}
 
 /* ============================================================
+   SHEET
+   One overlay every "tell me more" opens into. Detail never expands
+   underneath a card — the page keeps its shape and the reader chooses
+   what to open, which is what stops a long page feeling long.
+   ============================================================ */
+.sheet{
+  position:fixed;inset:0;z-index:115;display:grid;place-items:center;padding:18px;
+  background:rgb(10 12 20/.66);backdrop-filter:blur(20px) saturate(140%);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);
+  opacity:0;transition:opacity .3s ease;
+}
+.sheet.is-open{opacity:1}
+.sheet[hidden]{display:none}
+
+.sheet-panel{
+  width:min(780px,100%);max-height:min(88dvh,900px);display:flex;flex-direction:column;
+  background:var(--bg);border:1px solid var(--line);border-radius:20px;
+  box-shadow:0 34px 100px -34px rgb(0 0 0/.6);overflow:hidden;
+  transform:translateY(18px) scale(.975);
+  transition:transform .42s cubic-bezier(.32,.72,0,1);
+}
+.sheet.is-open .sheet-panel{transform:none}
+
+.sheet-top{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex:none;
+  padding:15px 18px;border-bottom:1px solid var(--line);background:var(--surface);
+}
+.sheet-title{margin:0;font:700 15px/1.2 var(--f-display);color:var(--ink);letter-spacing:-.01em}
+.sheet-x{
+  appearance:none;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);
+  width:30px;height:30px;border-radius:9px;cursor:pointer;font-size:16px;line-height:1;
+  display:grid;place-items:center;transition:.15s;flex:none;
+}
+.sheet-x:hover{color:var(--ink);border-color:var(--line-2)}
+
+.sheet-body{overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch}
+/* Content moves in from the page, so it keeps its own layout — the bento just
+   flattens to a single column at this width. */
+.sheet-body .bento{display:grid;grid-template-columns:1fr;gap:12px}
+.sheet-body .tile{break-inside:avoid}
+.sheet-body .kit{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.sheet-body .kit-col{opacity:1;transform:none;animation:none}
+
+@media (max-width:560px){
+  .sheet{padding:0}
+  .sheet-panel{max-height:100dvh;height:100dvh;border-radius:0;border:0;width:100%}
+  .sheet-body{padding:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .sheet,.sheet-panel{transition:none}
+}
+
+/* ============================================================
+   CAPSULE
+   The compact card a sheet opens from. Short on purpose: enough to
+   decide whether to open it, and nothing more.
+   ============================================================ */
+.cap{display:flex;flex-direction:column;gap:9px;height:100%}
+.cap h3{font:700 clamp(1.05rem,2.2vw,1.35rem)/1.2 var(--f-display);color:var(--ink);letter-spacing:-.02em;margin:0}
+.cap .cap-sum{font-size:13.5px;line-height:1.55;color:var(--ink-2);margin:0}
+.cap .chips{margin-top:1px}
+.cap-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:4px}
+.cap-actions .btn{cursor:pointer}
+.cap-meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
+.cap-meta b{font:500 12.5px var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.cap-meta span{font-size:11px;color:var(--muted);display:block;line-height:1.35}
+
+/* ============================================================
    TOOLBOX
    ============================================================ */
 .kit{display:grid;gap:14px;grid-template-columns:repeat(12,1fr);perspective:1500px}
@@ -1072,6 +1140,39 @@ ul{margin:0;padding:0;list-style:none}
   </div>
 
   <div class="bento">
+    <article class="tile tinted s12" style="--c:31 169 196">
+      <div class="cap">
+        <div class="row">
+          <span class="eyebrow">Hardware &middot; Edge ML</span>
+          <span class="pill when">Plan v1 &middot; Aug 2026</span>
+        </div>
+        <h3>Fishing Boat Safety System</h3>
+        <p class="cap-sum">Real-time distress and capsize detection for small Kerala fishing boats.
+           A traditional boat that capsizes or loses power offshore has no way to tell anyone &mdash;
+           the safety tech that exists is built for commercial fleets and priced for them. This one
+           classifies on the microcontroller and relays over LoRa, so it works where there is no
+           signal, which is exactly where boats get into trouble.</p>
+        <div class="cap-meta">
+          <div><b>&#8377;3,500&ndash;5,500</b><span>parts per boat unit</span></div>
+          <div><b>7 phases</b><span>sensing rig first</span></div>
+          <div><b>On-device</b><span>no cloud, no subscription</span></div>
+        </div>
+        <ul class="chips">
+          <li class="chip">ESP32</li><li class="chip">C/C++</li><li class="chip">emlearn</li>
+          <li class="chip">LoRa</li><li class="chip">FastAPI</li><li class="chip">React</li>
+        </ul>
+        <div class="cap-actions">
+          <button class="btn btn-solid btn-sm" type="button"
+                  data-sheet-open="capstone" data-sheet-title="Fishing Boat Safety System">
+            How it works &mdash; the full breakdown
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <template data-sheet="capstone">
+  <div class="bento">
 
     <article class="tile tinted s7" style="--c:31 169 196">
       <div class="mini-proj">
@@ -1217,17 +1318,71 @@ ul{margin:0;padding:0;list-style:none}
     </article>
 
   </div>
+  </template>
 </section>
 
 <!-- ==================== WORK ==================== -->
 <section class="section" id="work">
   <div class="sec-head">
     <h2>Shipped</h2>
-    <p>One I&rsquo;d like you to actually read, and eight more in a line each.</p>
+    <p>One built end to end this month, and eight before it.</p>
   </div>
 
   <div class="bento">
 
+    <article class="tile tinted s7" style="--c:96 132 255">
+      <div class="cap">
+        <div class="row">
+          <span class="eyebrow">Full-stack &middot; Postgres</span>
+          <span class="pill live">Live</span>
+        </div>
+        <h3>Campus Hub</h3>
+        <p class="cap-sum">Events, QR ticketing and volunteer duty rosters for a college. Students
+           get a signed pass; coordinators project a rotating code and watch volunteers appear on a
+           live roster as they scan in.</p>
+        <div class="cap-meta">
+          <div><b>30s</b><span>before a screenshot expires</span></div>
+          <div><b>~10k</b><span>lines, one deployment</span></div>
+          <div><b>0.14s</b><span>page load</span></div>
+        </div>
+        <ul class="chips">
+          <li class="chip">Next.js 16</li><li class="chip">PostgreSQL</li>
+          <li class="chip">Drizzle</li><li class="chip">TypeScript</li>
+        </ul>
+        <div class="cap-actions">
+          <button class="btn btn-solid btn-sm" type="button"
+                  data-sheet-open="campus" data-sheet-title="Campus Hub">
+            How it works
+          </button>
+          <a class="btn btn-line btn-sm" href="https://campus-hub-eight-rouge.vercel.app" target="_blank" rel="noopener">Open the app <span aria-hidden="true">&#8599;</span></a>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile tinted s5" style="--c:120 120 120">
+      <div class="cap">
+        <span class="eyebrow">Everything else</span>
+        <h3>Eight more projects</h3>
+        <p class="cap-sum">An AI kitchen, a student housing search, a medication reminder, an
+           attendance game, a mobile assistant, an NFC habit tracker, three machine-learning
+           studies and the Flask app that started it.</p>
+        <div class="cap-meta">
+          <div><b>4 live</b><span>behind a URL right now</span></div>
+          <div><b>8 repos</b><span>all public</span></div>
+        </div>
+        <div class="cap-actions">
+          <button class="btn btn-solid btn-sm" type="button"
+                  data-sheet-open="others" data-sheet-title="Other projects">
+            See my other projects
+          </button>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <template data-sheet="campus">
+    <div class="bento">
     <!-- ---------- FEATURED: Campus Hub ---------- -->
     <article class="tile tinted s7" style="--c:96 132 255">
       <div class="mini-proj">
@@ -1277,7 +1432,11 @@ ul{margin:0;padding:0;list-style:none}
         </ul>
       </div>
     </article>
+    </div>
+  </template>
 
+  <template data-sheet="others">
+    <div class="bento">
     <!-- ---------- EVERYTHING ELSE, ONE LINE EACH ---------- -->
     <article class="tile s12" style="--c:120 120 120">
       <div class="mini-proj">
@@ -1366,8 +1525,8 @@ ul{margin:0;padding:0;list-style:none}
         </ul>
       </div>
     </article>
-
-  </div>
+    </div>
+  </template>
 </section>
 
 <!-- ==================== EXPERIENCE ==================== -->
@@ -1740,6 +1899,7 @@ ul{margin:0;padding:0;list-style:none}
     </button>
   </div>
 
+  <template data-sheet="toolbox">
   <div class="kit">
     <div class="kit-col tile tinted" style="--c:224 69 123">
       <h3>Languages</h3>
@@ -1766,6 +1926,8 @@ ul{margin:0;padding:0;list-style:none}
       <div class="kit-list"><span>FastAPI</span><span>PostgreSQL</span><span>SQLite</span><span>Firebase</span><span>Flask</span><span>Vercel</span><span>Git</span><span>GitHub</span><span>uv</span></div>
     </div>
   </div>
+  </template>
+
 </section>
 
 <!-- ==================== CONTACT ==================== -->
@@ -2040,38 +2202,114 @@ ul{margin:0;padding:0;list-style:none}
     counters.forEach(runCounter);
   }
 
+  /* ---------------- sheet ---------------- */
+  /* One overlay shared by every "tell me more" on the page. Content lives in a
+     template element marked data-sheet, next to the card that opens it, so the
+     detail ships in the HTML — readable without JavaScript and indexable — while the
+     page itself stays short. */
+  var Sheet = (function(){
+    var el = null, lastFocus = null, isOpen = false;
+
+    function build(){
+      el = D.createElement('div');
+      el.className = 'sheet';
+      el.hidden = true;
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-modal', 'true');
+      el.innerHTML =
+        '<div class="sheet-panel">' +
+          '<div class="sheet-top">' +
+            '<h3 class="sheet-title"></h3>' +
+            '<button class="sheet-x" type="button" aria-label="Close">&times;</button>' +
+          '</div>' +
+          '<div class="sheet-body"></div>' +
+        '</div>';
+      D.body.appendChild(el);
+
+      el.querySelector('.sheet-x').addEventListener('click', close);
+      el.addEventListener('click', function(e){ if(e.target === el) close(); });
+      D.addEventListener('keydown', function(e){
+        if(!isOpen) return;
+        if(e.key === 'Escape'){ close(); return; }
+        if(e.key === 'Tab'){
+          var f = el.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+          if(!f.length) return;
+          var first = f[0], last = f[f.length - 1];
+          if(e.shiftKey && D.activeElement === first){ e.preventDefault(); last.focus(); }
+          else if(!e.shiftKey && D.activeElement === last){ e.preventDefault(); first.focus(); }
+        }
+      });
+    }
+
+    function open(title, node){
+      if(!el) build();
+      lastFocus = D.activeElement;
+      el.querySelector('.sheet-title').textContent = title || '';
+      var body = el.querySelector('.sheet-body');
+      body.innerHTML = '';
+      body.appendChild(node);
+      body.scrollTop = 0;
+
+      el.hidden = false;
+      isOpen = true;
+      D.body.style.overflow = 'hidden';
+      void el.offsetWidth;
+      el.classList.add('is-open');
+      el.querySelector('.sheet-x').focus();
+    }
+
+    function close(){
+      if(!isOpen) return;
+      isOpen = false;
+      el.classList.remove('is-open');
+      D.body.style.overflow = '';
+      setTimeout(function(){ if(!isOpen) el.hidden = true; }, reduce ? 0 : 300);
+      if(lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    return { open: open, close: close };
+  })();
+
+  /* Any control carrying a data-sheet-open attribute opens the template whose
+     data-sheet value matches it. */
+  Array.prototype.forEach.call(D.querySelectorAll('[data-sheet-open]'), function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-sheet-open');
+      var tpl = D.querySelector('template[data-sheet="' + id + '"]');
+      if(!tpl) return;
+      Sheet.open(btn.getAttribute('data-sheet-title') || '', tpl.content.cloneNode(true));
+    });
+  });
+
   /* ---------------- toolbox ---------------- */
-  /* The lists start hidden and the box starts shut. Both only happen once
-     JavaScript is here to open it again — with no script the toolbox art is
-     skipped and the categories are simply visible, which is the behaviour a
-     search engine and a reader without JS should get. */
+  /* Tapping plays the box opening, then the contents arrive in the shared
+     sheet rather than unfolding underneath — the section keeps its height and
+     the detail gets a window of its own. */
   (function(){
     var tbx = D.getElementById('tbx');
     var btn = D.getElementById('tbxBtn');
-    var kit = D.querySelector('#toolbox .kit');
-    if(!tbx || !btn || !kit) return;
+    var tpl = D.querySelector('template[data-sheet="toolbox"]');
+    if(!tbx || !btn || !tpl) return;
 
-    kit.id = kit.id || 'tbxKit';
-    kit.classList.add('is-shut');
+    var LID = 780;   // ms for the lid and tools to finish
+    var busy = false;
 
-    var open = false;
-    function toggle(){
-      open = !open;
-      tbx.classList.toggle('is-open', open);
-      btn.setAttribute('aria-expanded', String(open));
-      if(open){
-        kit.classList.remove('is-shut');
-        // Let the lid clear the box before the lists start arriving.
-        var cols = kit.querySelectorAll('.kit-col');
-        Array.prototype.forEach.call(cols, function(c){
-          c.style.animation = 'none'; void c.offsetWidth; c.style.animation = '';
-        });
-      } else {
-        kit.classList.add('is-shut');
-      }
-    }
+    btn.addEventListener('click', function(){
+      if(busy) return;
+      busy = true;
+      tbx.classList.add('is-open');
+      btn.setAttribute('aria-expanded', 'true');
 
-    btn.addEventListener('click', toggle);
+      setTimeout(function(){
+        Sheet.open('The toolbox', tpl.content.cloneNode(true));
+        // Shut the lid behind them, so the box is ready to open again.
+        setTimeout(function(){
+          tbx.classList.remove('is-open');
+          btn.setAttribute('aria-expanded', 'false');
+          busy = false;
+        }, 500);
+      }, reduce ? 0 : LID);
+    });
   })();
 
   /* ---------------- story mode ---------------- */
