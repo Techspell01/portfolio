@@ -67,11 +67,6 @@ from it. Existing hues:
 | `236 90 82` coral | `31 169 196` cyan |
 | `66 99 235` indigo | `168 200 30` lime |
 
-### Move the final-year project forward
-In the capstone section, the current phase is `<div class="phase now">`. Move the
-`now` class to whichever phase you've reached. Also update the
-`<span class="pill when">Plan v1 · Aug 2026</span>` above it.
-
 ### Update the numbers
 The hero stats animate up to whatever is in `data-count="10"`. Change the number
 there, and change the visible text next to it to match.
