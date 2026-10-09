@@ -62,7 +62,8 @@ SURFACE = (22, 26, 38)
 INK     = (237, 239, 248)
 INK2    = (196, 201, 220)
 MUTED   = (139, 146, 173)
-ACCENT  = (255, 157, 77)
+ACCENT  = (229, 9, 20)
+ACCENT2 = (255, 77, 87)     # lighter red for text on the dark card
 LINE    = (38, 43, 60)
 
 W, H = 1200, 630
@@ -87,7 +88,7 @@ card = Image.new("RGB", (W, H), BG)
 # --- ambient glow, echoing the hero mesh ---------------------------------
 glow = Image.new("RGB", (W, H), BG)
 g = ImageDraw.Draw(glow)
-g.ellipse([-180, -260, 460, 380], fill=(70, 40, 16))
+g.ellipse([-180, -260, 460, 380], fill=(78, 10, 16))
 g.ellipse([560, 300, 1180, 900], fill=(34, 24, 52))
 card = Image.blend(card, glow.filter(ImageFilter.GaussianBlur(150)), 0.85)
 d = ImageDraw.Draw(card)
@@ -105,7 +106,7 @@ mask = Image.new("L", (PW, PH), 0)
 ImageDraw.Draw(mask).rounded_rectangle([0, 0, PW - 1, PH - 1], radius=26, fill=255)
 card.paste(port, (PX, PY), mask)
 d.rounded_rectangle([PX, PY, PX + PW - 1, PY + PH - 1], radius=26,
-                    outline=(112, 76, 46), width=2)   # accent at low opacity over BG
+                    outline=(110, 22, 30), width=2)   # accent at low opacity over BG
 
 # --- text column ---------------------------------------------------------
 x = PAD
@@ -147,7 +148,7 @@ for c in CHIPS:
     cx += tw + 34
 
 # --- url -----------------------------------------------------------------
-d.text((x, H - 88), URL, font=f_url, fill=ACCENT)
+d.text((x, H - 88), URL, font=f_url, fill=ACCENT2)
 
 out = os.path.join(HERE, "og-card.png")
 card.save(out, "PNG", optimize=True)
