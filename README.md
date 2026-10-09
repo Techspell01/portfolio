@@ -1,6 +1,9 @@
 # Portfolio — Harinand AS
 
-A single-file portfolio site. No framework, no build step, no dependencies.
+A single-file portfolio site that plays like a streaming series: an opening title
+sequence, a "Who's watching?" screen, projects as Originals, the journey as
+Seasons, a Top 10 and a "To be continued…" ending. No framework, no build step,
+no dependencies.
 
 **Live:** https://techspell01.github.io/portfolio/
 
@@ -13,6 +16,7 @@ A single-file portfolio site. No framework, no build step, no dependencies.
 | `index.html` | **The whole site.** HTML, CSS, JS and the portrait all in one file. This is the file you edit and the file GitHub Pages serves. |
 | `og-card.png` | The 1200×630 preview image LinkedIn, WhatsApp and Slack show when the link is pasted. Referenced by `og:image`. |
 | `portrait.jpg` | The cropped photo. The site doesn't load it — the image is embedded inside `index.html` — but `og-card.png` is built from it. |
+| `Harinand-AS-Resume.pdf` | The résumé the nav, hero (Recruiter profile) and Credits link to. |
 | `tools/embed_photo.py` | Swaps in a different portrait. |
 | `tools/make_og_card.py` | Rebuilds `og-card.png`. Downloads the fonts on first run. |
 | `tools/make_artifact.py` | Regenerates the Claude preview version. Not needed for deploying. |
@@ -34,50 +38,38 @@ GitHub Pages rebuilds automatically. Give it 30–60 seconds, then hard-refresh
 (`Ctrl+Shift+R`) — the browser caches the old page aggressively.
 
 To preview before pushing, just open `index.html` in a browser. Everything works
-from `file://` — there is no server to run.
+from `file://` — there is no server to run. Add `?skip` to the URL to go straight
+past the opening and the profile screen.
 
 ---
 
 ## Editing
 
-Open `index.html` in any editor and search for the landmark text below.
+**Almost all content is data near the top of the `<script>` at the bottom of
+`index.html`.** Change it there and every card, overlay and rail picks it up.
 
-### Contact details
-Search `mailto:` — email, phone (`tel:`) and LinkedIn are three `<a class="ccard">`
-links next to each other.
-
-### Add a project
-Find `<!-- ==================== WORK ====================` and copy an existing
-`<article class="tile tinted s6">` block.
-
-**The one rule that matters:** inside a `.bento` grid, the `s3`…`s12` classes are
-column widths out of 12, and **each row must add up to 12.** The Work grid currently
-runs `12` / `7+5` / `7+5` / `7+5`. If you add a tile without rebalancing, you get a
-half-empty row.
-
-### Change a card's colour
-Each tile carries its own accent as `style="--c:240 128 42"` — plain **R G B**
-numbers, no `rgb()`, no commas. The tint, border, chips and hover glow all derive
-from it. Existing hues:
-
-| | |
+| To change… | Edit |
 |---|---|
-| `240 128 42` saffron | `224 69 123` rose |
-| `15 168 150` teal | `124 92 255` violet |
-| `236 90 82` coral | `31 169 196` cyan |
-| `66 99 235` indigo | `168 200 30` lime |
+| A project (title, logline, numbers, story, stack, links) | `TITLES` — the six with `featured:true` are the Originals; the rest are "More titles" |
+| Which projects appear in "More titles", and their order | `MORE` |
+| The "Who's watching?" profiles, the Originals order and section order per profile | `PROFILES` (`og` = Originals order, `secs` = section order) |
+| The journey | `SEASONS` — each season has `eps` (episodes); `open:'voc'` adds a ▶ that opens that project |
+| The Top 10 row | `TOP10` — `[project id, label, big number, line]` |
+| Skills | `GENRES` — `seen` lists the project ids it shows up in |
+| The ▶ Play Intro highlight reel | `REEL` |
+| The "Continue Exploring" cards | `SECMETA` |
 
-### Update the numbers
-The hero stats animate up to whatever is in `data-count="10"`. Change the number
-there, and change the visible text next to it to match.
+Things that are plain HTML instead: the hero (search `BILLBOARD`), the Credits
+cards (search `CREDITS`) and the contact links (search `TO BE CONTINUED`).
 
-### Add a section
-Three places must agree, or the roadmap rail breaks:
-1. `<section class="section" id="yourid">`
-2. the `SEC` array near the top of the `<script>` — `{id:'yourid', label:'LABEL', c:'R G B'}`
-3. a `<a href="#yourid">` in `<nav class="nav">`
+### Counts
+"15 titles · 7 live · 2 internships" appears in the hero meta row, the `REEL`, the
+`TOP10`, the meta description and `og-card.png`. Change them together.
 
-Keep rail labels to about 8 characters — longer ones overflow the 112px rail.
+### Colours
+One accent drives the whole site: `--acc`, `--acc-2` and `--acc-rgb` in `:root`.
+Each project's key art takes its own palette from `pal:[dark, mid, deepest, accent]`
+in `TITLES`, and a motif from `motif:` (drawn by the `motif()` function).
 
 ### Replace the photo
 ```bash
@@ -88,6 +80,8 @@ run it again with explicit pixel coordinates from the original image:
 ```bash
 python tools/embed_photo.py "C:/path/to/new-photo.jpg" --box 175 505 675 1172
 ```
+The photo is embedded once, in the billboard `<img id="portrait">`; the opening,
+the profile avatar and the intro reel all reuse it.
 
 ### Update the link-preview card
 The text on `og-card.png` lives at the top of `tools/make_og_card.py` (`EYEBROW`,
@@ -100,34 +94,25 @@ pushing, paste your URL into these to force a refresh:
 
 - LinkedIn — https://www.linkedin.com/post-inspector/
 - Facebook / WhatsApp — https://developers.facebook.com/tools/debug/
-- Twitter/X — https://cards-dev.twitter.com/validator
-
-If you change the site's headline, change the card's `LEAD` to match — a preview
-that contradicts the page looks worse than no preview.
 
 ---
 
 ## How the page is built
 
-- **Themes.** Every colour is a CSS custom property defined in `:root`. Dark mode
-  redefines only the tokens, in two places — a `prefers-color-scheme` media query
-  and a `[data-theme="dark"]` block — so both the OS setting and the manual toggle
-  work. Never hard-code a colour in a rule; add a token.
-- **The roadmap rail.** The winding road is generated in JS at the viewport's real
-  pixel size, so it never distorts. Milestone dots are positioned at each section's
-  actual share of the page scroll, so the rail is a true map of where you are. Below
-  1000px it becomes a dock at the bottom of the screen.
-- **3D tilt** is a shared `perspective` on each `.bento` with per-tile
-  `rotateX/rotateY` from the pointer. Disabled on touch devices and for anyone with
-  reduced-motion turned on.
-- **Reveal on scroll** only hides tiles that start below the fold, so the page is
-  never blank on first paint or in a link preview.
-- **Glass buttons** use `backdrop-filter` plus an inset top highlight and a `::before`
-  sheen. All of it runs through the `--glass-*` tokens.
+- **Stages.** First visit in a browser session: opening titles → "Who's watching?"
+  → home. The chosen profile is kept in `sessionStorage`, so a reload goes straight
+  home. "Replay opening" at the bottom runs it again.
+- **Originals** pin on desktop and scroll sideways as you scroll down; on touch,
+  small screens and reduced motion they're a normal swipe row.
+- **Key art** is generated: layered gradients plus an SVG motif per project. No
+  stock images.
+- **Reduced motion** is respected: no grain, no pinned scroll, no reveal animations,
+  and the opening jumps to its last frame.
+- It's a streaming-*style* page and uses no streaming service's name or logo.
 
 ## Gotchas
 
 - `_artifact.html` is generated and git-ignored. Don't edit it.
-- Fonts come from Google Fonts over the network — the page falls back to system
-  faces offline, which looks different but stays readable.
+- Fonts (Bebas Neue, Inter) come from Google Fonts — offline the page falls back
+  to system faces, which looks different but stays readable.
 - Editing the embedded photo's base64 by hand will corrupt it. Use the script.
