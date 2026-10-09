@@ -49,11 +49,11 @@ def ensure_fonts():
 ensure_fonts()
 
 # ---- content -------------------------------------------------------------
-EYEBROW = "PRODUCT ENGINEER  ·  KERALA, INDIA"
+EYEBROW = "DATA ANALYST  ·  I BUILD THE TOOLS TOO  ·  KERALA, INDIA"
 NAME    = "Harinand AS"
 LEAD    = ("Fifteen projects shipped since March 2026, seven of them live. "
            "Final-year B.Tech AI & ML student, open to internships and junior roles.")
-CHIPS   = ["React", "TypeScript", "Gemini", "SQL", "Python", "Evals"]
+CHIPS   = ["SQL", "Python", "Power BI", "BigQuery", "React", "Evals"]
 URL     = "techspell01.github.io/portfolio"
 
 # ---- palette (matches the site's dark theme) ----------------------------
