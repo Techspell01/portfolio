@@ -51,7 +51,7 @@ ensure_fonts()
 # ---- content -------------------------------------------------------------
 EYEBROW = "PRODUCT ENGINEER  ·  KERALA, INDIA"
 NAME    = "Harinand AS"
-LEAD    = ("Fourteen projects shipped since March 2026, eight of them live. "
+LEAD    = ("Fifteen projects shipped since March 2026, seven of them live. "
            "Final-year B.Tech AI & ML student, open to internships and junior roles.")
 CHIPS   = ["React", "TypeScript", "Gemini", "SQL", "Python", "Evals"]
 URL     = "techspell01.github.io/portfolio"

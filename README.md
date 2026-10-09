@@ -52,7 +52,7 @@ Find `<!-- ==================== WORK ====================` and copy an existing
 
 **The one rule that matters:** inside a `.bento` grid, the `s3`…`s12` classes are
 column widths out of 12, and **each row must add up to 12.** The Work grid currently
-runs `12` / `6+6` / `4+4+4` / `8+4`. If you add a tile without rebalancing, you get a
+runs `12` / `7+5` / `7+5` / `7+5`. If you add a tile without rebalancing, you get a
 half-empty row.
 
 ### Change a card's colour
